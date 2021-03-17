@@ -64,11 +64,29 @@ def incremental_backup(username: str,
 
         for index, activity in enumerate(missing_activities):
             id, start = activity
-            log.info("backing up activity %s from %s (%d out of %d) ...",
+            if id not in [578518094]:
+                log.info("backing up activity %s from %s (%d out of %d) ...",
                      id, start, index + 1, len(missing_activities))
-            try:
-                garminexport.backup.download(client, activity, retryer, backup_dir, export_formats)
-            except Exception as e:
-                log.error("failed with exception: %s", e)
-                if not ignore_errors:
-                    raise
+                try:
+                    garminexport.backup.download(client, activity, retryer, backup_dir, export_formats)
+                except Exception as e:
+                    log.error("failed with exception: %s", e)
+                    if not ignore_errors:
+                        raise
+
+        # gewicht herunterladen
+        import urllib.request, json 
+        import datetime
+        import time
+        WeightURL = "https://connect.garmin.com/modern/proxy/userprofile-service/userprofile/personal-information/weightWithOutbound/filterByDay?from="+str(int(datetime.datetime(2008,1,1,0,0).timestamp()))+"999"+"&until="+str(int(time.time()))+"999"
+        response = client.session.get(WeightURL)
+        if response.status_code in (404, 204):
+            log.info("failed to download weight 404,204")
+        if response.status_code != 200:
+            log.info("failed to download weight ungleich 200")
+        else:
+            data = json.loads(response.text)
+            heute = datetime.date.today()
+            with open(os.path.join(backup_dir,'weight_'+str(heute.year)+'-'+str(heute.month)+'-'+str(heute.day)+'.json'), 'w') as outfile:
+                json.dump(data,outfile)
+                 
