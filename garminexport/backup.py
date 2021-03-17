@@ -135,14 +135,17 @@ def download(client, activity, retryer, backup_dir, export_formats=None):
     not_found_path = os.path.join(backup_dir, not_found_file)
     with open(not_found_path, mode="a") as not_found:
         if 'gpx' in export_formats:
-            log.debug("getting gpx for %s", id)
-            activity_gpx = retryer.call(client.get_activity_gpx, id)
-            dest = os.path.join(backup_dir, export_filename(activity, 'gpx'))
-            if activity_gpx is None:
-                not_found.write(os.path.basename(dest) + "\n")
+            if not os.path.isfile('./backup/'+export_filename(activity, 'gpx')):
+                log.debug("getting gpx for %s", id)
+                activity_gpx = retryer.call(client.get_activity_gpx, id)
+                dest = os.path.join(backup_dir, export_filename(activity, 'gpx'))
+                if activity_gpx is None:
+                    not_found.write(os.path.basename(dest) + "\n")
+                else:
+                    with codecs.open(dest, encoding="utf-8", mode="w") as f:
+                        f.write(activity_gpx)
             else:
-                with codecs.open(dest, encoding="utf-8", mode="w") as f:
-                    f.write(activity_gpx)
+                log.debug("file already exist gpx for %s", id)
 
         if 'tcx' in export_formats:
             log.debug("getting tcx for %s", id)
