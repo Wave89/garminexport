@@ -168,9 +168,9 @@ class GarminClient(object):
         # appears like we need to touch base with the main page to complete the
         # login ceremony.
         self.session.get('https://connect.garmin.com/modern')
-
-    def _session_get(self, url, **kw):
-        return self.session.get(url, headers=GARMIN_HEADERS, **kw)
+        # This header appears to be needed on subsequent session requests or we
+        # end up with a 402 response from Garmin.
+        self.session.headers.update({'NK': 'NT'})
 
     def _get_csrf_token(self):
         """Retrieves a Cross-Site Request Forgery (CSRF) token from Garmin's login
