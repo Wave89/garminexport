@@ -71,7 +71,7 @@ def incremental_backup(username: str,
 
         for index, activity in enumerate(missing_activities):
             id, start = activity
-            if id not in [578518094, 19401753229, 19392949701]:
+            if id not in [578518094, 19401753229, 19392949701, 19363474615]:
                 log.info("backing up activity %s from %s (%d out of %d) ...",
                      id, start, index + 1, len(missing_activities))
                 try:
